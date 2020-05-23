@@ -1,20 +1,19 @@
 from napalm import get_network_driver
+import os
 import csv
+import sys
 
-driver = get_network_driver("ios")
-device = driver("192.168.1.1", "jays", "jayspalma")
-device.open()
-facts = device.get_facts()
-print(facts["hostname"])
+devicetoconfigure = input(
+    "Please enter the filename of the list of devices to be configured: "
+)
 
-driver = get_network_driver("ios")
-device = driver("192.168.1.2", "jays", "jayspalma")
-device.open()
-facts = device.get_facts()
-print(facts["hostname"])
+if os.path.isfile(devicetoconfigure):
+    print("Configuring devices found in " + devicetoconfigure)
+else:
+    print("File " + devicetoconfigure + " cannot be found.")
+    sys.exit()
 
-
-f = open("devices.csv")
+f = open(devicetoconfigure)
 csv_f = csv.reader(f)
 
 for row in csv_f:
@@ -28,3 +27,5 @@ for row in csv_f:
     device.open()
     facts = device.get_facts()
     print(facts["hostname"])
+
+f.close()
