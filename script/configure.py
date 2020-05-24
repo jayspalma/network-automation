@@ -1,7 +1,12 @@
 from napalm import get_network_driver
+from netmiko.ssh_exception import NetmikoAuthenticationException
+from paramiko.ssh_exception import SSHException
 import os
 import csv
 import sys
+import logging
+
+logging.basicConfig(filename="error.log")
 
 devicetoconfigure = input(
     "Please enter the filename of the list of devices to be configured: "
@@ -31,11 +36,28 @@ for row in csv_f:
     ip = row[1]
     username = row[2]
     password = row[3]
+    config = row[4]
 
     driver = get_network_driver(ios_family)
     device = driver(ip, username, password)
+    try:
+        device.open()
+
+    except NetmikoAuthenticationException:
+        print("Wrong use/password.")
+        continue
+
+    except SSHException:
+        print("SSH not enabled on device.")
+        continue
+
+    except Exception:
+        print("Unknown error: Check the device SSH configuration")
+        continue
+
     device.open()
-    facts = device.get_facts()
-    print(facts["hostname"])
+    print("Configuring device " + ip)
+    device.load_merge_candidate(config)
+    device.commit_config()
 
 f.close()
