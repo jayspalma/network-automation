@@ -8,10 +8,20 @@ devicetoconfigure = input(
 )
 
 if os.path.isfile(devicetoconfigure):
-    print("Configuring devices found in " + devicetoconfigure)
+    pass
 else:
-    print("File " + devicetoconfigure + " cannot be found.")
-    sys.exit()
+    while not os.path.isfile(devicetoconfigure):
+        devicetoconfigure = input(
+            "Please check the if filename is correct or type the aboslute path to the file or type 'exit' to quit. "
+        )
+
+        if (devicetoconfigure).lower() == "exit":
+            print("Exiting...")
+            sys.exit()
+        else:
+            os.path.isfile(devicetoconfigure)
+
+print("Configuring devices found in " + devicetoconfigure)
 
 f = open(devicetoconfigure)
 csv_f = csv.reader(f)
