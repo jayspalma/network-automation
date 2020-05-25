@@ -5,8 +5,10 @@ import os
 import csv
 import sys
 import logging
+from datetime import datetime
 
-logging.basicConfig(filename="error.log")
+
+logging.basicConfig(filename="error.log", level=logging.ERROR, filemode="w")
 
 devicetoconfigure = input(
     "Please enter the filename of the list of devices to be configured: "
@@ -41,22 +43,43 @@ for row in csv_f:
     driver = get_network_driver(ios_family)
     device = driver(ip, username, password)
     try:
+        print("Configuring " + ip + "...", end="")
         device.open()
 
     except NetmikoAuthenticationException:
-        print("Wrong use/password.")
+        print("Failed!")
+        logging.error(
+            str(datetime.now())
+            + " Error cofiguring "
+            + ip
+            + " :"
+            + " Wrong use/password."
+        )
         continue
 
     except SSHException:
-        print("SSH not enabled on device.")
+        print("Failed!")
+        logging.error(
+            str(datetime.now())
+            + " Error cofiguring "
+            + ip
+            + " :"
+            + " SSH not enabled on device."
+        )
         continue
 
     except Exception:
-        print("Unknown error: Check the device SSH configuration")
+        print("Failed!")
+        logging.error(
+            str(datetime.now())
+            + " Error cofiguring "
+            + ip
+            + " :"
+            + " Unknown error: Check the device SSH configuration"
+        )
         continue
 
-    device.open()
-    print("Configuring device " + ip)
+    print("Success!")
     device.load_merge_candidate(config)
     device.commit_config()
 
