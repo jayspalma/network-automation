@@ -79,8 +79,20 @@ for row in csv_f:
         )
         continue
 
-    print("Success!")
-    device.load_merge_candidate(config)
-    device.commit_config()
+    try:
+        device.load_merge_candidate(config)
+        print("Success!")
+        device.commit_config()
+    except FileNotFoundError:
+        print("Failed!")
+        logging.error(
+            str(datetime.now())
+            + " Error cofiguring "
+            + ip
+            + " :"
+            + " Configuration file cannot be found"
+        )
+        continue
+
 
 f.close()
